@@ -26,7 +26,7 @@ SinGAN can be used for the following manipulation tasks without any network chan
 ### Training SinGAN
 Use `main.py` to train a new SinGAN model.
 
-The **training configuration** follows [supplementary material](), and all the examples of this repository are generated from the same network with 8 scales. The training takes 40~50 minutes on a GTX 1060 3GB .
+The **training configuration** follows [supplementary material](), and all the examples of this repository were generated from the same network with 8 scales. The training takes 40~50 minutes on a GTX 1060 3GB .
 
 Example usage:
 
