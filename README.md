@@ -16,7 +16,7 @@ SinGAN can be used for the following manipulation tasks without any network chan
 
 ## Implementation Details
 - The **multi-scale network** is roughly based on the SinGAN paper,  with zero-pad the inputs to the generator(both image and noise) instead of padding in each layer, increasing the variability at corners, and replace batch normalization with [instance normalization](https://arxiv.org/abs/1607.08022), since instance-norm is more suitable for generative model.
-- The **WGAN-GP** objective function is a bit different from the "regular" [WGAN-GP](https://arxiv.org/abs/1704.00028) which trained on a dataset of images, the intention is to maintain 1-lipschitz condition in a patch manner, as the output of discriminator is a map of score per patch, therefore, the gradient norms are computed by `slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), axis=[3]))`. 
+- The **WGAN-GP** objective function is a bit different from the "regular" [WGAN-GP](https://arxiv.org/abs/1704.00028) which trained on a dataset of images, the intention is to maintain 1-lipschitz condition in a patch manner, as the output of discriminator is a map of score per patch. Therefore, the gradient norms are computed by `slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), axis=[3]))`. 
 
 <div align = 'center'>
 <img src = 'images/src/architecture.PNG' height = '300px'>
