@@ -4,7 +4,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.layers import Conv2D, ReLU, LeakyReLU
 from tensorflow.keras.layers import Add, Lambda, ZeroPadding2D
-from utils import *
 
 
 class instance_norm(Layer):

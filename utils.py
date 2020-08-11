@@ -25,7 +25,7 @@ def create_dir(dir):
 
 
 def load_image(image, image_size=None):
-    """Loading a image from directory into a tensor shape of [1,H,W,C] and value between [0, 255]
+    """Load an image from directory into a tensor shape of [1,H,W,C] and value between [0, 255]
     image : Directory of image
     image_size : An integer number
     """
@@ -44,7 +44,7 @@ def load_image(image, image_size=None):
 
 
 def imresize(image, min_size=0, scale_factor=None, new_shapes=None):
-    """ Expected input shapes [B, H, W, C] """
+    """ Expect input shapes [B, H, W, C] """
     if new_shapes:
         new_height = new_shapes[1]
         new_width = new_shapes[2]

@@ -1,7 +1,7 @@
 """ USAGE
 python main.py train --image ./images/target/rock.jpg --num_scales 8
 
-python main.py inference --image ./images/target/rock.jpg  --dir ./weights/training_checkpoints_rock_8_new  --mode random_sample  --inject_scale 0
+python main.py inference --image ./images/target/rock.jpg  --dir ./weights/training_checkpoints_rock_8  --mode random_sample  --inject_scale 0
  """
 import os
 import argparse
@@ -30,7 +30,7 @@ def main():
 
     # Inference arguments
     parser.add_argument('--num_samples', type=int, help='Number of random samples to generate', default=50)
-    parser.add_argument('--start_scale', type=int, help='The scale to start generating', default=0)
+    parser.add_argument('--inject_scale', type=int, help='The scale to start generating', default=0)
     parser.add_argument('--result_dir', help='Results directory', default='./results')
     parser.add_argument('--mode', default='random_sample',
                         help='Inference mode: random_sample, harmonization, paint2image, editing')
@@ -68,13 +68,13 @@ def main():
         assert os.path.exists(args.image), 'Reference image not found !'
         assert os.path.exists(args.dir), "Model doesn't exist, please train first"
         assert (args.mode == 'random_sample') or (args.mode == 'harmonization') or (args.mode == 'paint2image') or (args.mode == 'editing'), 'Inference mode: random_sample, harmonization, paint2image, editing'
-        assert args.start_scale >= 0
+        assert args.inject_scale >= 0
         assert args.image_size >= 0
 
         parameters = {
                 'num_samples' : args.num_samples,
                 'scale_factor' : args.scale_factor,
-                'start_scale' : args.start_scale,
+                'inject_scale' : args.inject_scale,
                 'result_dir' : args.result_dir,
                 'checkpoint_dir' : args.dir,
             }
@@ -88,10 +88,10 @@ def main():
         
 
 if __name__ == '__main__':
-    gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
-    tf.config.experimental.set_virtual_device_configuration(
-        gpus[0],
-        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]
-    )
+    # gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # tf.config.experimental.set_virtual_device_configuration(
+    #     gpus[0],
+    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]
+    # )
     
     main()

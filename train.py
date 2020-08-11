@@ -74,7 +74,7 @@ class Trainer:
 
 
     def train(self, training_image):
-        """ Train """
+        """ Training """
         real_image = load_image(training_image, image_size=self.max_size)
         real_image = normalize_m11(real_image)
         reals = self.create_real_pyramid(real_image)
@@ -92,8 +92,10 @@ class Trainer:
             g_opt = Adam(learning_rate=self.learning_schedule, beta_1=0.5, beta_2=0.999)
             d_opt = Adam(learning_rate=self.learning_schedule, beta_1=0.5, beta_2=0.999)
 
-
+            """ Build with shape """
             prev_rec = tf.zeros_like(reals[scale])
+            self.discriminators[scale](prev_rec)
+            self.generators[scale](prev_rec, prev_rec)
 
             train_step = self.wrapper()
 
@@ -140,26 +142,29 @@ class Trainer:
 
                 Z_rand = z_rand if scale == 0 else noise_amp * z_rand
                 Z_rec = noise_amp * z_rec
-
-                with tf.GradientTape(persistent=True) as tape:
-                    fake_rand = self.generators[scale](prev_rand, Z_rand)
-                    fake_rec = self.generators[scale](prev_rec, Z_rec)
-
-                    """ Loss for discriminator """
-                    dis_loss = self.dicriminator_wgan_loss(self.discriminators[scale], real, fake_rand, 1)
-                    """ Loss for generator """
-                    gen_loss = self.generator_wgan_loss(self.discriminators[scale], fake_rand)
-                    rec_loss = self.reconstruction_loss(real, fake_rec)
-                    gen_loss = gen_loss + 10 * rec_loss
-
+                
                 if i < 3:
+                    with tf.GradientTape() as tape:
+                        """ Only record the training variables """
+                        fake_rand = self.generators[scale](prev_rand, Z_rand)
+
+                        dis_loss = self.dicriminator_wgan_loss(self.discriminators[scale], real, fake_rand, 1)
+    
                     dis_gradients = tape.gradient(dis_loss, self.discriminators[scale].trainable_variables)
                     d_opt.apply_gradients(zip(dis_gradients, self.discriminators[scale].trainable_variables))
                 else:
+                    with tf.GradientTape() as tape:
+                        """ Only record the training variables """
+                        fake_rand = self.generators[scale](prev_rand, Z_rand)
+                        fake_rec = self.generators[scale](prev_rec, Z_rec)
+
+                        gen_loss = self.generator_wgan_loss(self.discriminators[scale], fake_rand)
+                        rec_loss = self.reconstruction_loss(real, fake_rec)
+                        gen_loss = gen_loss + 10 * rec_loss
+
                     gen_gradients = tape.gradient(gen_loss, self.generators[scale].trainable_variables)
                     g_opt.apply_gradients(zip(gen_gradients, self.generators[scale].trainable_variables))
-                
-                del tape
+
 
             metrics = (dis_loss, gen_loss, rec_loss)
             return z_rec, prev_rec, noise_amp, metrics
@@ -218,7 +223,7 @@ class Trainer:
             tape.watch(interpolates)
             dis_interpolates = discriminator(interpolates)
         gradients = tape.gradient(dis_interpolates, [interpolates])[0]
-        del tape
+
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), axis=[3])) # compute pixelwise gradient norm; per image use [1, 2, 3]
         gradient_penalty = tf.reduce_mean((slopes - 1.) ** 2)
 

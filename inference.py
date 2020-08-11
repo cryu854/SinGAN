@@ -10,7 +10,7 @@ class Inferencer:
     def __init__(self,
                  num_samples,
                  scale_factor,
-                 start_scale,
+                 inject_scale,
                  result_dir,
                  checkpoint_dir):
 
@@ -19,7 +19,7 @@ class Inferencer:
         self.load_model(checkpoint_dir)
         self.num_samples = num_samples
         self.scale_factor = scale_factor
-        self.start_scale = start_scale
+        self.inject_scale = inject_scale
         self.result_dir = result_dir
 
 
@@ -33,7 +33,7 @@ class Inferencer:
                 scale = int(dir_name[1])
                 if network == 'G':
                     generator = Generator(num_filters=32*pow(2, (scale//4)))
-                    generator.load_weights(os.path.join(path, dir_name) + '/G')
+                    generator.load_weights(os.path.join(path, dir_name) + '/G').expect_partial()    # Silence the warning
                     self.model.append(generator)
 
 
@@ -51,12 +51,12 @@ class Inferencer:
         if mode == 'random_sample':
             z_fixed = tf.random.normal(reals[0].shape)
             for n in range(self.num_samples):
-                fake = self.SinGAN_generate(reals, z_fixed, start_scale=self.start_scale)
+                fake = self.SinGAN_generate(reals, z_fixed, inject_scale=self.inject_scale)
                 imsave(fake, dir + f'/random_sample_{n}.jpg') 
 
         elif (mode == 'harmonization') or (mode == 'editing') or (mode == 'paint2image'):
-            fake = self.SinGAN_inject(reals, inject_scale=self.start_scale)
-            imsave(fake, dir + f'/inject_at_{self.start_scale}.jpg') 
+            fake = self.SinGAN_inject(reals, inject_scale=self.inject_scale)
+            imsave(fake, dir + f'/inject_at_{self.inject_scale}.jpg') 
 
         else:
             print('Inference mode must be: random_sample, harmonization, paint2image, editing')
@@ -76,7 +76,7 @@ class Inferencer:
 
 
     @tf.function
-    def SinGAN_generate(self, reals, z_fixed, start_scale=0):
+    def SinGAN_generate(self, reals, z_fixed, inject_scale=0):
         """ Use fixed noise to generate before start_scale """
         fake = tf.zeros_like(reals[0])
     
@@ -86,7 +86,7 @@ class Inferencer:
             if scale > 0:
                 z_fixed = tf.zeros_like(fake)
 
-            if scale < start_scale:
+            if scale < inject_scale:
                 z = z_fixed
             else:
                 z = tf.random.normal(fake.shape)
