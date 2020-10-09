@@ -31,6 +31,7 @@ class ConvBlock(Layer):
                              kernel_size=3,
                              strides=1,
                              padding='valid',
+                             use_bias=False,
                              kernel_initializer=self.initializer)
         self.instance_norm = instance_norm()
 

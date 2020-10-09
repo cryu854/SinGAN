@@ -1,7 +1,7 @@
 """ USAGE
-python main.py train --image ./images/target/rock.jpg --num_scales 8
+python main.py train --image ./images/train/stone.png --num_scales 8
 
-python main.py inference --image ./images/target/rock.jpg  --dir ./weights/training_checkpoints_rock_8  --mode random_sample  --inject_scale 0
+python main.py inference --image ./images/train/stone_editing.png --dir ./training_checkpoints  --mode editing  --inject_scale 2
  """
 import os
 import argparse
